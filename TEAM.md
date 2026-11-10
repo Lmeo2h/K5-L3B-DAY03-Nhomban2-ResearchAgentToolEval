@@ -13,7 +13,7 @@
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
 | 1 | Lê Quân Bảo | 2A202603888 | 26ai.baolq2@vinuni.edu.vn | LeBao403 | Nhóm trưởng — Setup + Baseline |
-| 2 | Nguyễn Tấn Châu | 2A202603846 | 26ai.chaunt@vinuni.edu.vn |  | Prompt engineer |
+| 2 | Nguyễn Tấn Châu | 2A202603846 | 26ai.chaunt@vinuni.edu.vn | Lmeo2h | Prompt engineer |
 | 3 | Đỗ Thị Thu Hằng | 2A202603840 | 26ai.hangdtt@vinuni.edu.vn | ThuHang2604 | Tool declaration + Tool mới |
 | 4 | Nguyễn Thị Khánh Linh | 2A202603845 | 26ai.linhntk@vinuni.edu.vn | Xrkhanhlinh | Eval designer |
 | 5 | Nguyễn Văn Quốc | 2A202603864 | 26ai.quocnv@vinuni.edu.vn | missher03 | UI + Demo |
