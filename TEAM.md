@@ -5,7 +5,7 @@
 - Tên nhóm: Nhomban2
 - Lớp: L3B
 - Repo nhóm: `K5-L3B-DAY03-Nhomban2-ResearchAgentToolEval` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt: (điền)
+- URL repo, nhánh nộp, commit chốt: https://github.com/Lmeo2h/K5-L3B-DAY03-Nhomban2-ResearchAgentToolEval | Nhánh: main | 72c7f9c
 - Provider/model: `openai` / `gpt-4o-mini`
 
 ## Thành viên
