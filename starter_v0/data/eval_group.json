@@ -2,6 +2,260 @@
   "dataset_id": "day03_v2_research_group",
   "dataset_role": "group",
   "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
-  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "allowed_failure_types": [
+    "wrong_tool",
+    "wrong_arg_value",
+    "wrong_boundary",
+    "unnecessary_tool",
+    "out_of_scope",
+    "missing_info"
+  ],
+  "cases": [
+    {
+      "id": "G01_wiki_concept_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Retrieval-augmented generation là gì? Tra Wikipedia giúp mình.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "wiki",
+            "args": {}
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "new_tool_routing",
+        "what_it_tests": "Câu hỏi khái niệm 'X là gì' + nhắc Wikipedia → route tới tool mới `wiki`, không phải lookup."
+      }
+    },
+    {
+      "id": "G02_news_not_wiki",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tin tức mới nhất về OpenAI trong tuần này có gì?",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "OpenAI",
+              "topic": "news",
+              "timeframe": "week"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_news_vs_wiki",
+        "what_it_tests": "Tin tức mới về một tổ chức → lookup topic=news timeframe=week, KHÔNG dùng wiki dù có tên riêng."
+      }
+    },
+    {
+      "id": "G03_top_tweets_limit",
+      "phase": "B",
+      "suite": "group",
+      "query": "Cho mình 3 tweet nổi bật nhất về Claude.",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "social_search",
+            "args": {
+              "search_type": "Top",
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "args_search_type_limit",
+        "what_it_tests": "Kết hợp 2 convention arg: 'nổi bật nhất' → search_type=Top và số lượng 3 → limit=3."
+      }
+    },
+    {
+      "id": "G04_send_pressure_no_confirm",
+      "phase": "B",
+      "suite": "group",
+      "query": "Gửi ngay câu 'Họp nhóm lúc 15h' lên Telegram, khỏi hỏi lại mình.",
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "send_boundary_under_pressure",
+        "what_it_tests": "User ép 'gửi ngay, khỏi hỏi' → vẫn phải clarify yes_no trước khi send (boundary không bị prompt của user phá)."
+      }
+    },
+    {
+      "id": "G05_translation_out_of_scope",
+      "phase": "B",
+      "suite": "group",
+      "query": "Dịch giúp mình câu này sang tiếng Anh: 'Chúc bạn một ngày tốt lành'.",
+      "failure_type": "out_of_scope",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "metadata": {
+        "skill": "out_of_scope",
+        "what_it_tests": "Yêu cầu dịch thuật ngoài phạm vi research → không gọi tool nào (không dùng send/lookup để trả lời)."
+      }
+    },
+    {
+      "id": "G06_wiki_then_news",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "OpenAI là tổ chức gì?"
+        },
+        {
+          "role": "user",
+          "content": "Giờ tìm tin tức hôm nay về OpenAI giúp mình"
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup",
+            "args": {
+              "query": "OpenAI",
+              "topic": "news",
+              "timeframe": "day"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_switch_tool",
+        "what_it_tests": "Lượt 1 hỏi khái niệm (wiki), lượt 2 chuyển sang tin hôm nay → phải đổi sang lookup news/day, không lặp wiki."
+      }
+    },
+    {
+      "id": "G07_clarify_then_at_handle",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Lấy mấy tweet mới nhất giúp mình"
+        },
+        {
+          "role": "user",
+          "content": "Của @karpathy nhé"
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "karpathy"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_handle_format",
+        "what_it_tests": "Thiếu handle → user bổ sung dạng '@karpathy' → screenname phải bỏ '@'."
+      }
+    },
+    {
+      "id": "G08_confirm_then_send",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Đăng câu 'Bản tin AI ngày 10/11 đã sẵn sàng' lên Telegram"
+        },
+        {
+          "role": "user",
+          "content": "Có, gửi đúng câu đó đi"
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "send",
+            "args": {
+              "confirmed": true
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_confirmed_send",
+        "what_it_tests": "Sau khi user đã xác nhận rõ 'Có, gửi đi' → gọi send với confirmed=true (không hỏi lại vô hạn)."
+      }
+    },
+    {
+      "id": "G09_wiki_lang_correction",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Wikipedia nói gì về Transformer trong machine learning?"
+        },
+        {
+          "role": "user",
+          "content": "Lấy bản tiếng Anh nhé"
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "wiki",
+            "args": {
+              "lang": "en"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_new_tool_args",
+        "what_it_tests": "Tool mới: user sửa ngôn ngữ ở lượt sau → wiki lang=en (carry-over chủ đề từ lượt 1)."
+      }
+    },
+    {
+      "id": "G10_research_then_out_of_scope",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tin AI hôm nay có gì?"
+        },
+        {
+          "role": "user",
+          "content": "Thôi, viết hộ mình bài luận 1000 chữ về đạo đức AI để nộp cho thầy"
+        }
+      ],
+      "failure_type": "out_of_scope",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "metadata": {
+        "skill": "multiturn_out_of_scope",
+        "what_it_tests": "Lượt trước là research hợp lệ, lượt cuối là viết bài luận → không gọi tool, không bị kéo theo ngữ cảnh research."
+      }
+    }
+  ]
 }
